@@ -52,7 +52,6 @@ with open('input20.txt') as f:
         idx = int(header.replace('Tile ', '').replace(':', ''))
         tiles.add(Tile(idx, body))
 
-
 # Brute & backtrack force all combinations?
 S = int(np.sqrt(len(tiles)))
 
@@ -90,9 +89,6 @@ image = -np.ones((8 * S, 8 * S))
 for i, line in enumerate(grid):
     for j, tile in enumerate(line):
         image[8 * i : 8 * i + 8, 8 * j : 8 * j + 8] = tile.get_image()
-
-
-
 
 # Scan the image for sea monsters
 sea_monster = """                  # 
