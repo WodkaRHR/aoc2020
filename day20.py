@@ -40,7 +40,7 @@ class Tile:
         image = np.rot90(self._image, k=self.rotation)
         if self.hflip:
             image = image[::-1]
-        return image
+        return image[1:-1, 1:-1] # Borders are not part of the actual image
 
     def __repr__(self):
         return f'{self.idx} F{self.hflip}R{self.rotation}'
@@ -83,11 +83,36 @@ grid = [[None for _ in range(S)] for _ in range(S)]
 result = backtrack(grid, 0, tiles.copy())
 print(result)
 value = grid[0][0].idx * grid[0][-1].idx * grid[-1][0].idx * grid[-1][-1].idx
+print(value)
 
 # Assemble the correct grid
-image = -np.ones((10 * S, 10 * S))
+image = -np.ones((8 * S, 8 * S))
 for i, line in enumerate(grid):
     for j, tile in enumerate(line):
-        image[10 * i : 10 * i + 10, 10 * j : 10 * j + 10] = tile.get_image()
+        image[8 * i : 8 * i + 8, 8 * j : 8 * j + 8] = tile.get_image()
 
-print(image[:21, :21])
+
+
+
+# Scan the image for sea monsters
+sea_monster = """                  # 
+#    ##    ##    ###
+ #  #  #  #  #  #   """
+sea_monster = np.array([[int(c) for c in line] for line in sea_monster.replace('#', '1').replace(' ', '0').splitlines()])
+
+for rot in range(4):
+    for hflip in range(2):
+        rotated = np.rot90(image, k=rot)
+        if hflip:
+            rotated = rotated[::-1]
+        
+        is_sea_monster = np.zeros_like(rotated)
+        # Look for the sea monster in this rotated image
+        for x in range(0, image.shape[0] - sea_monster.shape[0]):
+            for y in range(0, image.shape[1] - sea_monster.shape[1]):
+                if ((rotated[x : x + sea_monster.shape[0], y : y + sea_monster.shape[1]] * sea_monster) == sea_monster).all():
+                    is_sea_monster[x : x + sea_monster.shape[0], y : y + sea_monster.shape[1]] += sea_monster
+
+        is_sea_monster = np.abs(is_sea_monster)
+        print((rotated * (1 - is_sea_monster)).sum())
+
