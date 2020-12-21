@@ -12,7 +12,6 @@ class Tile:
         body = np.array([list(map(int, l)) for l in body])
         self._image = body.copy()
         self._borders = {}
-        self._border_to_orientation = defaultdict(set)
         for rot, hflip in product(range(4), range(2)):
             transformed = np.rot90(body, k=rot)
             if hflip:
@@ -28,7 +27,6 @@ class Tile:
                     border = transformed[:, 0]
                 border = int(''.join(map(str, border.tolist())), 2)
                 self._borders[(direction, rot, hflip)] = border
-                self._border_to_orientation[border].add((direction, rot, hflip))
         self.idx = idx
         self.hflip, self.rotation = 0, 0
 
@@ -110,5 +108,6 @@ for rot in range(4):
                     is_sea_monster[x : x + sea_monster.shape[0], y : y + sea_monster.shape[1]] += sea_monster
 
         is_sea_monster = np.abs(is_sea_monster)
-        print((rotated * (1 - is_sea_monster)).sum())
+        if is_sea_monster.sum():
+            print((rotated * (1 - is_sea_monster)).sum())
 
